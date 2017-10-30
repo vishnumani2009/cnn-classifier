@@ -120,14 +120,14 @@ def generateData(fileIndex,dataFolder):
   return X,Y
 
 
-def load_data_and_labels():
-    """
-    Loads MR polarity data from files, splits the data into words and generates labels.
-    Returns split sentences and labels.
-    """
-    # Load data from files
-    tokenizedFolder = "D:/malwareTextAnalysis/data/tokenized/"
-    for run in range(1,2):
+def load_data_and_labels(run):
+        """
+        Loads MR polarity data from files, splits the data into words and generates labels.
+        Returns split sentences and labels.
+        """
+        # Load data from files
+        tokenizedFolder = "D:/malwareTextAnalysis/data/tokenized/"
+
         trainingSet, devSet, testSet, SVC_para, NB_para = getRunData(run)
 
         trainX, trainY = generateData(trainingSet, tokenizedFolder)
@@ -201,13 +201,13 @@ def build_input_data(sentences, labels, vocabulary):
     return [x, y]
 
 
-def load_data():
+def load_data(run):
     """
     Loads and preprocessed data for the MR dataset.
     Returns input vectors, labels, vocabulary, and inverse vocabulary.
     """
     # Load and preprocess data
-    sentencestrain, labelstrain,sentencesdev,labelsdev,sentencestest,labelstest = load_data_and_labels()
+    sentencestrain, labelstrain,sentencesdev,labelsdev,sentencestest,labelstest = load_data_and_labels(run)
     sentences,labels=sentencestrain+sentencesdev+sentencestest,labelstrain+labelsdev+labelstest
     train_len=len(sentencestrain)
     devlen=len(sentencesdev)
