@@ -3,6 +3,8 @@ Train convolutional network for sentiment analysis on IMDB corpus. Based on
 "Convolutional Neural Networks for Sentence Classification" by Yoon Kim
 http://arxiv.org/pdf/1408.5882v2.pdf
 
+Readaptation based on code by https://github.com/alexander-rakhlin/CNN-for-Sentence-Classification-in-Keras/blob/master/sentiment_cnn.py
+
 For "CNN-rand" and "CNN-non-static" gets to 88-90%, and "CNN-static" - 85% after 2-5 epochs with following settings:
 embedding_dim = 50          
 filter_sizes = (3, 8)
@@ -18,16 +20,7 @@ Differences from original article:
 - random initialization is no worse than word2vec init on IMDB corpus
 - sliding Max Pooling instead of original Global Pooling
 """
-from sklearn.pipeline import Pipeline
 from sklearn.metrics import classification_report
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.svm import LinearSVC, SVC
-from sklearn import metrics
-from sklearn.linear_model import LogisticRegression
-
-from os import listdir
 import sys,keras
 import numpy as np
 import data_helpers
@@ -36,8 +29,6 @@ from w2v import train_word2vec
 from keras.models import Sequential, Model
 from keras.layers import Dense, Dropout, Flatten, Input, MaxPooling1D, Convolution1D, Embedding
 from keras.layers.merge import Concatenate
-from keras.datasets import imdb
-from keras.preprocessing import sequence
 np.random.seed(0)
 
 # ---------------------- Parameters section -------------------
@@ -45,19 +36,16 @@ np.random.seed(0)
 # Model type. See Kim Yoon's Convolutional Neural Networks for Sentence Classification, Section 3
 model_type = "CNN-non-static"  # CNN-rand|CNN-non-static|CNN-static
 
-# Data source
-data_source = "keras_data_set"  # keras_data_set|local_dir
-
 # Model Hyperparameters
 embedding_dim = 50
-filter_sizes = (3, 8)
+filter_sizes = (3,5, 8)
 num_filters = 50
 dropout_prob = (0.5, 0.8)
 hidden_dims = 50
 
 # Training parameters
 batch_size = 64
-num_epochs = 10
+num_epochs = 100
 
 # Prepossessing parameters
 sequence_length = 400
@@ -75,12 +63,6 @@ def load_data(run):
     x, y, vocabulary, vocabulary_inv_list,train_len,dev_len,test_len = data_helpers.load_data(run)
     vocabulary_inv = {key: value for key, value in enumerate(vocabulary_inv_list)}
     y = y.argmax(axis=1)
-
-    # Shuffle data
-    #shuffle_indices = np.random.permutation(np.arange(len(y)))
-    #x = x[shuffle_indices]
-    #y = y[shuffle_indices]
-    #train_len = int(len(x) * 0.9)
     x_train = x[:train_len]
     y_train = y[:train_len]
     x_dev = x[train_len:train_len+dev_len]
@@ -176,7 +158,4 @@ for run in range(1,6):
               validation_data=(x_dev, y_dev), verbose=1)
     ypred=(model.predict(x_test).argmax(axis=-1))
     score, acc = model.evaluate(x_test, y_test, batch_size=batch_size)
-    print('Test score:', score)
-    print('Test accuracy:', acc)
-    print(ypred)
     print(classification_report(y_test.argmax(axis=-1),ypred))
