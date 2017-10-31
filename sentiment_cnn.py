@@ -45,7 +45,7 @@ hidden_dims = 50
 
 # Training parameters
 batch_size = 64
-num_epochs = 100
+num_epochs = 10
 
 # Prepossessing parameters
 sequence_length = 400
@@ -156,6 +156,9 @@ for run in range(1,6):
     # Train the model
     model.fit(x_train, y_train, batch_size=batch_size, epochs=num_epochs,
               validation_data=(x_dev, y_dev), verbose=1)
+    print(model.summary())
     ypred=(model.predict(x_test).argmax(axis=-1))
     score, acc = model.evaluate(x_test, y_test, batch_size=batch_size)
     print(classification_report(y_test.argmax(axis=-1),ypred))
+
+   
