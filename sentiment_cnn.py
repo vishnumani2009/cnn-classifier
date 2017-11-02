@@ -21,6 +21,9 @@ Differences from original article:
 - sliding Max Pooling instead of original Global Pooling
 """
 from sklearn.metrics import classification_report
+from sklearn.svm import LinearSVC,SVC
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.ensemble import AdaBoostClassifier,BaggingClassifier
 import sys,keras
 import numpy as np
 import data_helpers
@@ -45,7 +48,7 @@ hidden_dims = 50
 
 # Training parameters
 batch_size = 64
-num_epochs = 10
+num_epochs = 4
 
 # Prepossessing parameters
 sequence_length = 400
@@ -154,11 +157,24 @@ for run in range(1,6):
         embedding_layer.set_weights([weights])
 
     # Train the model
-    model.fit(x_train, y_train, batch_size=batch_size, epochs=num_epochs,
-              validation_data=(x_dev, y_dev), verbose=1)
+    model.fit(x_train, y_train, batch_size=batch_size, epochs=num_epochs,              validation_data=(x_dev, y_dev), verbose=1)
     print(model.summary())
+    #my_classifier = KerasClassifier(model,  batch_size=batch_size, epochs=num_epochs,    validation_data=(x_dev, y_dev), verbose=1)
+    #boosted_model=BaggingClassifier(base_estimator=my_classifier,random_state=1)
+    #boosted_model.fit(x_train, np.argmax(y_train, axis=1))
     ypred=(model.predict(x_test).argmax(axis=-1))
     score, acc = model.evaluate(x_test, y_test, batch_size=batch_size)
     print(classification_report(y_test.argmax(axis=-1),ypred))
 
-   
+    # layer_name = 'dense_1'
+    # intermediate_layer_model = Model(inputs=model.input,
+    #                                  outputs=model.get_layer(layer_name).output)
+    # x_train_new = intermediate_layer_model.predict(x_train)
+    # x_test_new=intermediate_layer_model.predict(x_test)
+    # y_train_new=np.argmax(y_train, axis=1)
+    # y_test_new = np.argmax(y_test, axis=1)
+    #
+    # classifier=SVC()
+    # classifier.fit(x_train_new,y_train_new)
+    # ypred=classifier.predict(x_test_new)
+    # print(classification_report(y_test_new, ypred))
