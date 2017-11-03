@@ -48,7 +48,7 @@ hidden_dims = 50
 
 # Training parameters
 batch_size = 64
-num_epochs = 4
+num_epochs = 50
 
 # Prepossessing parameters
 sequence_length = 400
@@ -81,6 +81,8 @@ def load_data(run):
 for run in range(1,6):
     print("Load data..."+str(run))
     x_train, y_train,x_dev,y_dev, x_test, y_test, vocabulary_inv = load_data(run)
+    for i in range(len(x_train[0])):
+        print(vocabulary_inv[i])
     y_train = keras.utils.to_categorical(y_train, 2)
     y_test = keras.utils.to_categorical(y_test, 2)
     y_dev = keras.utils.to_categorical(y_dev, 2)
@@ -155,26 +157,9 @@ for run in range(1,6):
         print("Initializing embedding layer with word2vec weights, shape", weights.shape)
         embedding_layer = model.get_layer("embedding")
         embedding_layer.set_weights([weights])
-
-    # Train the model
-    model.fit(x_train, y_train, batch_size=batch_size, epochs=num_epochs,              validation_data=(x_dev, y_dev), verbose=1)
     print(model.summary())
-    #my_classifier = KerasClassifier(model,  batch_size=batch_size, epochs=num_epochs,    validation_data=(x_dev, y_dev), verbose=1)
-    #boosted_model=BaggingClassifier(base_estimator=my_classifier,random_state=1)
-    #boosted_model.fit(x_train, np.argmax(y_train, axis=1))
+    # Train the model
+    model.fit(x_train, y_train, batch_size=batch_size, epochs=num_epochs,validation_data=(x_dev, y_dev), verbose=1)
     ypred=(model.predict(x_test).argmax(axis=-1))
     score, acc = model.evaluate(x_test, y_test, batch_size=batch_size)
     print(classification_report(y_test.argmax(axis=-1),ypred))
-
-    # layer_name = 'dense_1'
-    # intermediate_layer_model = Model(inputs=model.input,
-    #                                  outputs=model.get_layer(layer_name).output)
-    # x_train_new = intermediate_layer_model.predict(x_train)
-    # x_test_new=intermediate_layer_model.predict(x_test)
-    # y_train_new=np.argmax(y_train, axis=1)
-    # y_test_new = np.argmax(y_test, axis=1)
-    #
-    # classifier=SVC()
-    # classifier.fit(x_train_new,y_train_new)
-    # ypred=classifier.predict(x_test_new)
-    # print(classification_report(y_test_new, ypred))
